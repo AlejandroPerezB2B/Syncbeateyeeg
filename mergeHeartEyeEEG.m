@@ -38,7 +38,7 @@ cd(data_dir);
 A = dir('0*'); % Get participant folders
 
 % Loop across participants
-for subj = 73:length(A)
+for subj = 1:length(A)
     name = A(subj).name; % Participant number (folder name)
 
     % Loop across conditions
