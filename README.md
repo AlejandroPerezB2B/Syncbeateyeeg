@@ -4,7 +4,7 @@ Linguistic stimuli: 18 passage audios (city descriptions excerpted from travel g
 
 Nonlinguistic stimuli: 18 musical tone audios (a combination of different instrument sounds; 9 Easy and 9 Hard, vary by a number of instruments) synthesized using Audition.
 
-Visual stimuli: 3 isoluminant screen-saver video clips [6].
+Visual stimuli: 3 isoluminant screen-saver video clips.
 
 **Data**
 
