@@ -26,7 +26,7 @@ FIXED subj 62 instead of EEG_and_ECG_ling_062.edf_1.vhdr has EEG_and_ECG_ling_06
 *UNFIXED*
 
 pop_importeyetracker(): Loading E:\Toronto\040\Eye movement\040nonling_new.mat...Error using pop_importeyetracker
-pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data!
+pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data! (suj=27)
 
 
 pop_importeyetracker(): Loading E:\Toronto\055\Eye movement\055ling_new.mat...Error using pop_importeyetracker
