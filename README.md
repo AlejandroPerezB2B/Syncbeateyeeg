@@ -1,9 +1,3 @@
-**Notes**
-
-% Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants.
-
-% Initially, we aimed to process the synchronized EEG-HR-EYE data in a single file. However, due to complications with the clean_artifacts function's operation on specific channels, we opted to split the data back into EEG and HR-EYE components for simplicity and to ensure smooth processing.
-
 % Functions to be used in the following order:
 
 1.- replaceEyeLinkStrings()
@@ -12,7 +6,11 @@
 
 3.- preprocHeartEyeEEG()
 
+**Notes**
 
+% Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants.
+
+% Initially, we aimed to process the synchronized EEG-HR-EYE data in a single file. However, due to complications with the clean_artifacts function's operation on specific channels, we opted to split the data back into EEG and HR-EYE components for simplicity and to ensure smooth processing.
 
 **Stimuli**
 
