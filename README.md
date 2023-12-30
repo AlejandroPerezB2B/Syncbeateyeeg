@@ -28,36 +28,35 @@ EEG/ECG (1000 Hz) and eye movement (500 Hz) were simultaneously recorded via a T
 
 In the linguistic condition, the markers are:
 
-Onset English (S1, S5, S9) (Onsets marks the beginning of a passage)
-There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
-
-Onset Hebrew (S3, S7, S11)
-There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
-
-Offset (S2, S4, S6, S8, S10, S12): Offsets mark the end of a passage, showing when a segment of language or speech concludes.
-
-Question Onset (S13 or S14) 
-
-Response (S16 or S32)
-
-S111 and S112 are the experiment beggining and end, respectively.
+  *Onset English (S1, S5, S9) (Onsets marks the beginning of a passage)
+  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  
+  *Onset Hebrew (S3, S7, S11)
+  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  
+  *Offset (S2, S4, S6, S8, S10, S12): Offsets mark the end of a passage, showing when a segment of language or speech concludes.
+  
+  *Question Onset (S13 or S14) 
+  
+  *Response (S16 or S32)
+  
+  *S111 and S112 are the experiment beggining and end, respectively.
 
 In the NONlinguistic condition, the markers are:
 
-Onset Easy (S1) (Onsets marks the beginning of a passage).
-There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
-
-Onset Hard (S3)
-There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
-
-Offset (S2, S4): Offsets mark the end of a passage.
-
-Question Onset (S13 or S14): 
-
-Response (S16 or S32)
-
-S111 and S112 are the experiment beggining and end, respectively.
-
+  Onset Easy (S1) (Onsets marks the beginning of a passage).
+  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  
+  Onset Hard (S3)
+  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  
+  Offset (S2, S4): Offsets mark the end of a passage.
+  
+  Question Onset (S13 or S14): 
+  
+  Response (S16 or S32)
+  
+  S111 and S112 are the experiment beggining and end, respectively.
 
 
 ![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/65445363/53f168e9-3679-4179-bb6f-5dc2a4476813)
