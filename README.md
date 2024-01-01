@@ -6,9 +6,11 @@
 
 3.- preprocHeartEyeEEG()
 
+4.- procHR() -> output from this function are the .xlsx files 'table_HRxxxxx' included in the repository.
+
 **Notes**
 
-% Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants.
+% Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants. There is also an unidentified error for participant 012 (subject [6]) when running procHR().
 
 % Initially, we aimed to process the synchronized EEG-HR-EYE data in a single file. However, due to complications with the clean_artifacts function's operation on specific channels, we opted to split the data back into EEG and HR-EYE components for simplicity and to ensure smooth processing.
 
@@ -84,3 +86,10 @@ Please check your raw data. (subj=41)
 pop_importeyetracker(): Loading E:\Toronto\086\Eye movement\086nonling_new.mat...Error using pop_importeyetracker
 pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data!
 (subj=72)
+
+*Next steps*
+
+Removing components corresponding to artifacts from the EEG.
+
+Process the Eye data.
+
