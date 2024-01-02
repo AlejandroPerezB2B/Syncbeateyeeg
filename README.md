@@ -6,7 +6,7 @@
 
 3.- preprocHeartEyeEEG()
 
-4.- procHR() -> output from this function are the .xlsx files 'table_HRxxxxx' included in the repository.
+4.- procEKG() -> output from this function are the .xlsx files 'table_HRxxxxx' included in the repository.
 
 **Notes**
 
