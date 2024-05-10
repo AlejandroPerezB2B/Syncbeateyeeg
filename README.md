@@ -8,6 +8,8 @@
 
 4.- procEKG() -> output from this function are the .xlsx files 'table_HRxxxxx' included in the repository.
 
+5.- IC_manual_rejection.m -> Script for manual rejecting components accounting for non-brain activity. Output from this script is the *_ICremov.set
+
 **Notes**
 
 % Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants. There is also an unidentified error for participant 012 (subject [6]) when running procHR().
