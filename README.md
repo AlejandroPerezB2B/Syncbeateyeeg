@@ -71,21 +71,18 @@ FIXED subject 20 in the EEG recording for the nonling condition the is a '.' mis
 
 FIXED subj 62 instead of EEG_and_ECG_ling_062.edf_1.vhdr has EEG_and_ECG_ling_062.edf_3.vhdr
 
-
-*UNFIXED*
-
-pop_importeyetracker(): Loading E:\Toronto\040\Eye movement\040nonling_new.mat...Error using pop_importeyetracker
-pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data! (suj=27)
+FIXED "pop_importeyetracker(): Loading E:\Toronto\040\Eye movement\040nonling_new.mat...Error using pop_importeyetracker
+pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data! (suj=27)"
 
 
-pop_importeyetracker(): Loading E:\Toronto\055\Eye movement\055ling_new.mat...Error using pop_importeyetracker
+FIXED "pop_importeyetracker(): Loading E:\Toronto\055\Eye movement\055ling_new.mat...Error using pop_importeyetracker
 pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data!
-Please check your raw data. (subj=41)
+Please check your raw data. (subj=41)"
 
 
-pop_importeyetracker(): Loading E:\Toronto\086\Eye movement\086nonling_new.mat...Error using pop_importeyetracker
+FIXED "pop_importeyetracker(): Loading E:\Toronto\086\Eye movement\086nonling_new.mat...Error using pop_importeyetracker
 pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data!
-(subj=72)
+(subj=72)"
 
 *Next steps*
 
