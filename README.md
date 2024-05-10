@@ -65,6 +65,9 @@ In the NONlinguistic condition, the markers are:
 
 ![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/65445363/53f168e9-3679-4179-bb6f-5dc2a4476813)
 
+![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/51342792/72dcb069-e4b4-4da9-bab0-9aebdfb8a68e)
+
+
 While all trials are around 30s long, to make it consistent, we could use 28s as a standard duration for analysis (because the shortest trial is ~28.5s). 
 
 *notes*
