@@ -49,10 +49,10 @@ In the linguistic condition, the markers are:
 In the NONlinguistic condition, the markers are:
 
   Onset Easy (S1) (Onsets marks the beginning of a passage).
-  There are a total of xxxx trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
   
   Onset Hard (S3)
-  There are a total of xxxx trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
   
   Offset (S2, S4): Offsets mark the end of a passage.
   
