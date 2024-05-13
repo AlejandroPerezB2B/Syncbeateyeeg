@@ -1,7 +1,7 @@
 % Functions to be used in the following order:
 
-1.- replaceEyeLinkStrings() 
-This function consistently replaces certain trigger-related strings generated from EyeLink, so as to facilitate the synchronization of eye movement and EEG data in the following function.
+1.- replaceEyeLinkStrings() <br />
+This function consistently replaces certain trigger-related strings generated from EyeLink, so as to facilitate the synchronization of eye movement and EEG data in the following function. <br />
 Input files are ".asc" files (under the "Eye movement" folder) that are converted from ".edf" files using the "Visual EDF2ASC" app on Windows; output files are "_new.asc" files.
 
 2.- mergeHeartEyeEEG()
