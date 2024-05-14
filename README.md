@@ -34,9 +34,11 @@ Output files are 4 excel files ("table_HRxxxxx.xlsx" included in the repository)
 
 5.- IC_manual_rejection()  <br />
 
-This function manually rejects components that account for non-brain activity. 
+This function visually presents independent components, and manually rejects components that account for non-brain activity.  <br />
 
-Output from this script is the *_ICremov.set
+Input files are the "EEG_0XX.set" files obtained from the "preprocHeartEyeEEG.m" function (which conducted automatic ICA labeling) above.  
+
+Output files are "0XX_ICremov.set" and "0XX_ICremov.fdt" files (which contain new datasets after component removal) under the participant number folder. 
 
 **Notes**
 
