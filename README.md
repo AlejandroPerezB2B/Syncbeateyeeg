@@ -48,9 +48,9 @@ Output files are "0XX_ICremov.set" and "0XX_ICremov.fdt" files (which contain ne
 
 **Stimuli**
 
-Linguistic stimuli: 18 passage audios (city descriptions excerpted from travel guides; 9 in English, 9 in Hebrew) recorded by three female, highly proficient bilinguals.
+Linguistic stimuli: 18 passage audios (city descriptions excerpted from travel guides; 9 in English, 9 in Hebrew) used in the 18 study trials.
 
-Nonlinguistic stimuli: 18 musical tone audios (a combination of different instrument sounds; 9 Easy and 9 Hard, vary by a number of instruments) synthesized using Audition.
+Nonlinguistic stimuli: 18 musical tone audios (a combination of different instrument sounds; 9 Easy and 9 Hard, vary by a number of instruments) used in the 18 study trials.
 
 Visual stimuli: 3 isoluminant screen-saver video clips.
 
@@ -58,66 +58,47 @@ Visual stimuli: 3 isoluminant screen-saver video clips.
 
 EEG/ECG (1000 Hz) and eye movement (500 Hz) were simultaneously recorded via a Trigger Box. 
 
+**Trial and Duration**
+For each condition in both the linguistic and nonlinguistic tasks, there were a total of 10 trials, including an initial practice trial (should be excluded from the analysis) and 9 study trials.
+
+While all trials are around 30s, we used 28s as a standard duration for consistent analysis (because the shortest inguistic trial is ~28.5s). 
+
 **Markers**
 
-In the linguistic condition, the markers are:
+In the linguistic task, the markers are:
 
-  *Onset English (S1, S5, S9) (Onsets marks the beginning of a passage)
-  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  *Onset (marks the beginning of a passage): English (S1, S5, S9); Hebrew (S3, S7, S11).
   
-  *Onset Hebrew (S3, S7, S11)
-  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
-  
-  *Offset (S2, S4, S6, S8, S10, S12): Offsets mark the end of a passage, showing when a segment of language or speech concludes.
-  
-  *Question Onset (S13 or S14) 
-  
-  *Response (S16 or S32)
-  
-  *S111 and S112 are the experiment beggining and end, respectively.
+  *Offset (marks the end of a passage): English (S2, S6, S10): Hebrew (S4, S8, S12). 
 
-In the NONlinguistic condition, the markers are:
+In the nonlinguistic task, the markers are:
 
-  Onset Easy (S1) (Onsets marks the beginning of a passage).
-  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  *Onset: Easy (S1); Hard (S3).
   
-  Onset Hard (S3)
-  There are a total of 10 trials. The initial trial serves as a practice round and should be excluded from the analysis.
+  *Offset: Easy (S2); Hard (S4).
   
-  Offset (S2, S4): Offsets mark the end of a passage.
-  
-  Question Onset (S13 or S14): 
-  
-  Response (S16 or S32)
-  
-  S111 and S112 are the experiment beggining and end, respectively.
-
+Across tasks, common markers:
+ 
+  Question onset S13, question offset S14; response onset S16, response offset S32; experiment beggining S111, experiment end S112.
 
 ![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/65445363/53f168e9-3679-4179-bb6f-5dc2a4476813)
 
 ![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/51342792/72dcb069-e4b4-4da9-bab0-9aebdfb8a68e)
 
 
-While all trials are around 30s long, to make it consistent, we could use 28s as a standard duration for analysis (because the shortest trial is ~28.5s). 
-
 *notes*
 
-FIXED subject 20 in the EEG recording for the nonling condition the is a '.' missing in the filenames
+FIXED subject 20 in the EEG recording for the nonling condition the is a '.' missing in the filenames. 
 
 FIXED subj 62 instead of EEG_and_ECG_ling_062.edf_1.vhdr has EEG_and_ECG_ling_062.edf_3.vhdr
 
-FIXED "pop_importeyetracker(): Loading E:\Toronto\040\Eye movement\040nonling_new.mat...Error using pop_importeyetracker
+FIXED The following 3 participants had the missing "S112" trigger (recording ending), which was caused while converting ".edf" to ".asc" files. Relevant files have been reconverted and updated on SharePoint.
+(1) "pop_importeyetracker(): Loading E:\Toronto\040\Eye movement\040nonling_new.mat...Error using pop_importeyetracker
 pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data! (suj=27)"
-
-
-FIXED "pop_importeyetracker(): Loading E:\Toronto\055\Eye movement\055ling_new.mat...Error using pop_importeyetracker
-pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data!
-Please check your raw data. (subj=41)"
-
-
-FIXED "pop_importeyetracker(): Loading E:\Toronto\086\Eye movement\086nonling_new.mat...Error using pop_importeyetracker
-pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data!
-(subj=72)"
+(2) "pop_importeyetracker(): Loading E:\Toronto\055\Eye movement\055ling_new.mat...Error using pop_importeyetracker
+pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data! (subj=41)"
+(3) "pop_importeyetracker(): Loading E:\Toronto\086\Eye movement\086nonling_new.mat...Error using pop_importeyetracker
+pop_importeyetracker(): Did not find events of the specified type [112] in both ET and EEG data! (subj=72)"
 
 *Next steps*
 
