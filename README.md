@@ -24,9 +24,19 @@ Input files are the "0XX.set" files (under the participant number folder) obtain
 
 Output files are (1) "EEG_0XX.set" and "EEG_0XX.fdt" files (in EEGLAB format; contain the preprocessed EEG data); and (2) "HR_EYE_0XX.set" and "HR_EYE_0XX.fdt" files (contain the  unprocessed ECG and eye movement data). Both are under the participant number folder.
 
-4.- procEKG() -> output from this function are the .xlsx files 'table_HRxxxxx' included in the repository.
+4.- procEKG() <br />
 
-5.- IC_manual_rejection.m -> Script for manual rejecting components accounting for non-brain activity. Output from this script is the *_ICremov.set
+This function preprocesses the ECG data using the "EEG-Beats" plugin in EEGLAB and output excel files that contain various extracted heart rate measures. <br />
+
+Input files are the 'HR_EYE_0XX.set' files obtained from the "preprocHeartEyeEEG.m" function above. <br />
+
+Output files are 4 excel files ("table_HRxxxxx.xlsx" included in the repository). Each of them represents one experimental manipulation ('English', 'Hebrew', 'Easy', 'Hard') and contains multiple heart rate measures extracted using the EEG-Beats plugin for all participants.
+
+5.- IC_manual_rejection()  <br />
+
+This function manually rejects components that account for non-brain activity. 
+
+Output from this script is the *_ICremov.set
 
 **Notes**
 
