@@ -40,25 +40,9 @@ Input files are the "EEG_0XX.set" files obtained from the "preprocHeartEyeEEG.m"
 
 Output files are "0XX_ICremov.set" and "0XX_ICremov.fdt" files (which contain new datasets after component removal) under the participant number folder. 
 
-**Notes**
-
-% Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants. There is also an unidentified error for participant 012 (subject [6]) when running procHR().
-
-% Initially, we aimed to process the synchronized EEG-HR-EYE data in a single file. However, due to complications with the clean_artifacts function's operation on specific channels, we opted to split the data back into EEG and HR-EYE components for simplicity and to ensure smooth processing.
-
-**Stimuli**
-
-Linguistic stimuli: 18 passage audios (city descriptions excerpted from travel guides; 9 in English, 9 in Hebrew) used in the 18 study trials.
-
-Nonlinguistic stimuli: 18 musical tone audios (a combination of different instrument sounds; 9 Easy and 9 Hard, vary by a number of instruments) used in the 18 study trials.
-
-Visual stimuli: 3 isoluminant screen-saver video clips.
-
-**Data**
-
-EEG/ECG (1000 Hz) and eye movement (500 Hz) were simultaneously recorded via a Trigger Box. 
 
 **Trial and Duration**
+
 For each condition in both the linguistic and nonlinguistic tasks, there were a total of 10 trials, including an initial practice trial (should be excluded from the analysis) and 9 study trials.
 
 While all trials are around 30s, we used 28s as a standard duration for consistent analysis (because the shortest inguistic trial is ~28.5s). 
@@ -79,14 +63,29 @@ In the nonlinguistic task, the markers are:
   
 Across tasks, common markers:
  
-  Question onset S13, question offset S14; response onset S16, response offset S32; experiment beggining S111, experiment end S112.
+  *Question onset S13, question offset S14; response onset S16, response offset S32; experiment beggining S111, experiment end S112.
 
 ![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/65445363/53f168e9-3679-4179-bb6f-5dc2a4476813)
 
 ![image](https://github.com/AlejandroPerezB2B/Syncbeateyeeg/assets/51342792/72dcb069-e4b4-4da9-bab0-9aebdfb8a68e)
 
+**Stimuli**
 
-*notes*
+Linguistic stimuli: 18 passage audios (city descriptions excerpted from travel guides; 9 in English, 9 in Hebrew) used in the 18 study trials.
+
+Nonlinguistic stimuli: 18 musical tone audios (a combination of different instrument sounds; 9 Easy and 9 Hard, vary by a number of instruments) used in the 18 study trials.
+
+Visual stimuli: 3 isoluminant screen-saver video clips.
+
+**Data**
+
+EEG/ECG (1000 Hz) and eye movement (500 Hz) were simultaneously recorded via a Trigger Box. 
+
+**Notes**
+
+% Participants 040, 055, and 086 (subjects [27, 41, 72]) encountered errors, prompting us to skip these cases. Should the issues be resolved, rerun the pipeline for these participants. There is also an unidentified error for participant 012 (subject [6]) when running procHR().
+
+% Initially, we aimed to process the synchronized EEG-HR-EYE data in a single file. However, due to complications with the clean_artifacts function's operation on specific channels, we opted to split the data back into EEG and HR-EYE components for simplicity and to ensure smooth processing.
 
 FIXED subject 20 in the EEG recording for the nonling condition the is a '.' missing in the filenames. 
 
