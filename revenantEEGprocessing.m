@@ -12,10 +12,9 @@ function revenantEEGprocessing()
 %                   to experimental conditions. These files are contained
 %                   in the 'EEG and ECG' folder.
 %
-% OUTPUT            One file on EEGLAB format containing synchronised
-%                   eye-hr-eeg recording from the whole experimental
-%                   session. Name of the file corresponds to the name of
-%                   the folder.
+% OUTPUT            One file on EEGLAB format containing EEG data from the
+%                   twon conditions. Name of the file corresponds to the 
+%                   'EEGrevenant' + name of the folder.
 %
 % Utilizes EEGLAB plugins
 % - "bva-io" v1.73
@@ -35,17 +34,19 @@ function revenantEEGprocessing()
 eeglab; close all;
 
 % Obtain the path to the EEGLAB version used
-s = what('eeglab'); % change the name accordingly
+s = what('eeglab'); % WARNING! Change the name to your eeglab foldername.
 eeglabroot = s.path; clear s;
 
 % Define path to the electrode file
-elec_names = fullfile(eeglabroot,'plugins','dipfit','standard_BEM','elec','standard_1005.elc');
+elec_names = [fileparts(which('standard-10-5-cap385.elp')) filesep 'standard-10-5-cap385.elp'];
+% Coordinate transform parameters for the electrodes locations we will use.
+coordinateTransformParameters = [ 0   0   0   0   0   0   1   1   1 ];
 
 % Setting up Dipole Fitting variables and paths
 path_dipfit = what('dipfit');
 path_dipfit = path_dipfit.path;
 addpath(genpath(path_dipfit));
-templateChannelFilePath = fullfile(path_dipfit,'standard_BEM','elec','standard_1005.elc');
+% templateChannelFilePath = fullfile(path_dipfit,'standard_BEM','elec','standard_1005.elc');
 hdmFilePath = fullfile(path_dipfit,'standard_BEM','standard_vol.mat');
 MRIfile = fullfile(path_dipfit,'standard_BEM','standard_mri.mat');
 
@@ -86,16 +87,13 @@ for subj = 1:length(A)
     nameArray = {vhdrfiles.name};
 
     % Use the cellfun function to apply the contains function to each element of nameArray
+    % Find the indices where the string is present
     containsString_ling = cellfun(@(x) contains(x, '_ling_'), nameArray);
     containsString_nonling = cellfun(@(x) contains(x, '_nonling_'), nameArray);
 
-    % Find the indices where the string is present
-    idx_ling = find(containsString_ling);
-    idx_nonling = find(containsString_nonling);
-
     % Import EEG data using "bva-io" plugin
-    EEG_ling = pop_loadbv(eeg_path, vhdrfiles(idx_ling).name);
-    EEG_nonling = pop_loadbv(eeg_path, vhdrfiles(idx_nonling).name);
+    EEG_ling = pop_loadbv(eeg_path, vhdrfiles(containsString_ling).name);
+    EEG_nonling = pop_loadbv(eeg_path, vhdrfiles(containsString_nonling).name);
 
     % Add channel info
     EEG_ling = pop_chanedit(EEG_ling,'lookup',elec_names);
@@ -126,11 +124,15 @@ for subj = 1:length(A)
         'FC1','C3','T7','TP9','CP5','CP1','Pz','P3','P7','O1','Oz','O2','P4', ...
         'P8','CP6','CP2','Cz','C4','T8','FT10','FC6','FC2','F4','F8','Fp2'});
 
+    % channel locations, for later interpolation
+    chanlocs = EEG.chanlocs;
+
     % Reference to infinity
     EEG = ref_infinity(EEG);
 
     % Clean data using ASR
     [EEG_clean,~,~,removed_channels] = clean_artifacts(EEG);
+    EEG_clean = eeg_checkset(EEG_clean, 'makeur');
     % save the labels of removed channels to keep track of unnused channels
     save(fullfile(data_dir,name,'removed_channels.mat'),'removed_channels');
     clear removed_channels;
@@ -138,26 +140,30 @@ for subj = 1:length(A)
     % vis_artifacts(EEG_clean,EEG);
 
     % High-pass filter to remove slow drifts (e.g., above 1 Hz)
-    EEG = pop_eegfiltnew(EEG, 'locutoff', 1);
+    EEG = pop_eegfiltnew(EEG_clean, 'locutoff', 2);
 
     % % Resampling the EEG data to reduce storage and unnecessary
     % high-frequency info (this step is commented on purpose, not performed)
     % EEG = pop_resample(EEG, 250);
 
     % Run ICA for artifact removal
-    EEG = pop_runica( EEG_clean, 'icatype', 'runica' );
+    EEG = pop_runica( EEG, 'icatype', 'runica' );
 
-    % Perform automatic coordinate transformation
-    [~,coordinateTransformParameters] = coregister(EEG.chanlocs, templateChannelFilePath, 'warp', 'auto', 'manual', 'off');
+    % Avoid data to be referenced to average since average reference seems
+    % to be a special case of reference to infinity.
+    EEG.ref = 'common';
 
     % Set Dipole Fitting parameters
     EEG = pop_dipfit_settings( EEG, 'hdmfile',hdmFilePath,'mrifile',MRIfile, ...
-        'chanfile',templateChannelFilePath,'coordformat','MNI', ...
+        'chanfile',elec_names,'coordformat','MNI', ...
         'coord_transform',coordinateTransformParameters ,'chansel',1:EEG.nbchan );
 
     % Run Dipole Fitting
     EEG = pop_multifit(EEG, 1:EEG.nbchan,'threshold', 100, 'dipplot','off','plotopt',{'normlen' 'on'}); % 'dipplot','on',
 
+    % Interpolate any removed channels
+    EEG = pop_interp(EEG, chanlocs);
+    
     % Label the components
     EEG = iclabel(EEG, 'default');
 
