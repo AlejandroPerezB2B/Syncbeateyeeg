@@ -19,22 +19,44 @@
 % Plugin needed: Viewprops 1.5.4
 % Author: Alejandro Perez, Cambridge.
 
-% Clear workspace and close all figures
-clear; close all;
-%
+% Close all figures and add eeglab to path
+eeglab; close all;
 % Select the directory containing participant folders
 data_dir = uigetdir;
 cd(data_dir);
 % Get all participant folders
-A = dir('0*'); 
+A = dir('0*');
+
+% Define the participants to be EXCLUDED from the analyses.
+% Use the participant folder name
+Ppt2exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084'};
+
+% Define table to save number of markers on each recording 
+sz = [length(A)-length(Ppt2exclude) 2];
+varTypes = {'string','double'};
+varNames = {'Participant','Markers'};
+T = table('Size',sz,'VariableTypes',varTypes,'VariableNames',varNames);
 
 % Loop across participants
 for subj = 1:length(A)
+    % Retrieve participant's folder name
+    name = A(subj).name; %
+    % Check if the participant is going to be excluded
+    isExcluded = any(strcmp(name, Ppt2exclude));
+    % Skip participant if excluded
+    if isExcluded
+        continue
+    end
     % Change directory to the participant's folder
-    cd([data_dir filesep A(subj).name ]);
+    cd([data_dir filesep name ]);
     current_dir = pwd;
     % Load the EEG dataset
-    EEG = pop_loadset('filename', ['EEG_' A(subj).name '.set']);
+    EEG = pop_loadset('filename', ['EEG_revenant' name '.set']);
+    
+    % Record number of markers as sanity check
+    T.Participant(subj) = name;
+    T.Markers(subj) = size(EEG.event,2);
+
     % Inspecting the components
     pop_viewprops(EEG,0);
     pause; close;
@@ -48,5 +70,8 @@ for subj = 1:length(A)
     EEG.icaact = [];
     EEG = eeg_checkset(EEG, 'ica');
     % Save the updated dataset after component removal
-    pop_saveset( EEG, 'filename',[A(subj).name(1:end-4) '_ICremov.set'],'filepath',current_dir);
+    pop_saveset( EEG, 'filename',[name '_ICremov2.set'],'filepath',current_dir);
 end
+
+writetable(T,[data_dir filesep 'number_of_events_afterICA_all_participants.xlsx']);
+
