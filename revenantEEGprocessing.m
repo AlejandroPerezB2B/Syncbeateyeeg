@@ -114,8 +114,6 @@ for subj = 1:length(A)
     EEG_nonling = pop_select( EEG_nonling,'point',[(lat1_nonling - time_buffer*EEG_nonling.srate) (lat2_nonling + time_buffer*EEG_nonling.srate)]);
     EEG_nonling = eeg_checkset(EEG_nonling, 'makeur');
 
-    clear  lat* time_buffer;
-
     % Merge datasets from ling and nonling recordings
     EEG = pop_mergeset(EEG_ling, EEG_nonling);
 
@@ -148,10 +146,6 @@ for subj = 1:length(A)
 
     % Run ICA for artifact removal
     EEG = pop_runica( EEG, 'icatype', 'runica' );
-
-    % Avoid data to be referenced to average since average reference seems
-    % to be a special case of reference to infinity.
-    EEG.ref = 'common';
 
     % Set Dipole Fitting parameters
     EEG = pop_dipfit_settings( EEG, 'hdmfile',hdmFilePath,'mrifile',MRIfile, ...
