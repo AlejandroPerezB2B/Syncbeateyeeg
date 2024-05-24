@@ -40,6 +40,14 @@ Input files are the "EEG_0XX.set" files obtained from the "preprocHeartEyeEEG.m"
 
 Output files are "0XX_ICremov.set" and "0XX_ICremov.fdt" files (which contain new datasets after component removal) under the participant number folder. 
 
+6.- create_table_EventMarkers_allPpt()  <br />
+
+This function records the number of markers (e.g., recording start, recording end, stimulus onset) for each recording (linguistic and nonlinguistic) as a sanity check. <br /> 
+
+Input files are the ".vhdr" files corresponding to the raw EEG recordings. 
+
+Output file is an excel table named "number_of_events_each recording_all_participants.xlsx" which contains the number of markers in each recording and the number of trials in each condition.
+
 
 **Trial and Duration**
 
