@@ -13,7 +13,7 @@ function revenantEEGprocessing()
 %                   in the 'EEG and ECG' folder.
 %
 % OUTPUT            One file on EEGLAB format containing EEG data from the
-%                   twon conditions. Name of the file corresponds to the 
+%                   twon conditions. Name of the file corresponds to the
 %                   'EEGrevenant' + name of the folder.
 %
 % Utilizes EEGLAB plugins
@@ -26,36 +26,40 @@ function revenantEEGprocessing()
 % - "fitTwoDipoles" v1.00
 % - "REST" v1.2
 % - "REST_cmd" v1.0
+% - "PICARD1.0"
 %
 % Author: Alejandro Perez, McMaster University, Hamilton, Canada
 % v1.0 21/05/2024
+% v2.0 24/05/2024: TemplateChannelFilePath and coordinateTransformParameters fixed
+%                  issue with event markers fixed
+%                  Automatic rejection of components flagged for removal
+%
 
 % Calling the eeglab GUI to create variables (GUI won't be used)
 eeglab; close all;
 
 % Obtain the path to the EEGLAB version used
-s = what('eeglab'); % WARNING! Change the name to your eeglab foldername.
-eeglabroot = s.path; clear s;
-
-% Define path to the electrode file
-elec_names = [fileparts(which('standard-10-5-cap385.elp')) filesep 'standard-10-5-cap385.elp'];
-% Coordinate transform parameters for the electrodes locations we will use.
-coordinateTransformParameters = [ 0   0   0   0   0   0   1   1   1 ];
+eeglabroot = what('eeglab'); % WARNING! Change the name to your eeglab foldername.
+eeglabroot = eeglabroot.path;
 
 % Setting up Dipole Fitting variables and paths
-path_dipfit = what('dipfit');
+path_dipfit = what('dipfit'); % WARNING! Change the name to your dipfit plugin foldername.
 path_dipfit = path_dipfit.path;
 addpath(genpath(path_dipfit));
-% templateChannelFilePath = fullfile(path_dipfit,'standard_BEM','elec','standard_1005.elc');
+templateChannelFilePath = fullfile(path_dipfit,'standard_BEM','elec','standard_1005.elc');
 hdmFilePath = fullfile(path_dipfit,'standard_BEM','standard_vol.mat');
 MRIfile = fullfile(path_dipfit,'standard_BEM','standard_mri.mat');
 
-% seconds before the first and after the last marker
-time_buffer = 0.5;
+% Define the markers delimiting the portion of interest
+start_marker = 'S111';
+end_marker = 'S112';
 
 % Define the participants to be EXCLUDED from the analyses.
 % Use the participant folder name
-Ppt2exclude = {'016', '057'};
+Ppt2exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084'};
+% Reasons to exclude it:
+% The first 8 ppts were not born in or immigrated to Canada before age 3;
+% the last 2 ppts are monolinguals with over 30% exposure to another language
 
 % Select participant's parent directory
 data_dir = uigetdir([],"Select the parent directory for participant data");
@@ -66,7 +70,11 @@ A = dir('0*'); % Get participant folders
 for subj = 1:length(A)
 
     % Retrieve participant's folder name
-    name = A(subj).name; %
+    name = A(subj).name;
+
+    % Delete other eeg files created before to save disk space (comment if not of your interest)
+    cd(fullfile(data_dir, name));
+    delete ([name '.fdt'],[name '.set'],['EEG_' name '.fdt'],['EEG_' name '.set']);
 
     % Check if the participant is going to be excluded
     isExcluded = any(strcmp(name, Ppt2exclude));
@@ -96,22 +104,41 @@ for subj = 1:length(A)
     EEG_nonling = pop_loadbv(eeg_path, vhdrfiles(containsString_nonling).name);
 
     % Add channel info
-    EEG_ling = pop_chanedit(EEG_ling,'lookup',elec_names);
-    EEG_nonling = pop_chanedit(EEG_nonling,'lookup',elec_names);
+    EEG_ling = pop_chanedit(EEG_ling,'lookup',templateChannelFilePath);
+    EEG_nonling = pop_chanedit(EEG_nonling,'lookup',templateChannelFilePath);
 
     % Define channel types
     [EEG_ling.chanlocs(1:31).type] = deal("EEG");
     [EEG_nonling.chanlocs(1:31).type] = deal("EEG");
 
-    % Selecting the signal around the first-stimuli-onset last-stimuli-offset with an additional buffer
-    lat1_ling = EEG_ling.event(2).latency; % 'New Segment' marker is at event(1) in the BVA format
-    lat2_ling = EEG_ling.event(end).latency;
-    EEG_ling = pop_select( EEG_ling,'point',[(lat1_ling - time_buffer*EEG_ling.srate) (lat2_ling + time_buffer*EEG_ling.srate)]);
+    % % % Selecting the signal around the first-stimuli-onset last-stimuli-offset
+    % Find the indices of the start and end markers
+    start_index = find(strcmp({EEG_ling.event.type}, start_marker), 1, 'first');
+    end_index = find(strcmp({EEG_ling.event.type}, end_marker), 1, 'first');
+    % Ensure both markers are found
+    if isempty(start_index) || isempty(end_index)
+        error('Start or end marker not found in the dataset.');
+    end
+    % Get the latency of the start and end markers in data points
+    start_latency = EEG_ling.event(start_index).latency;
+    end_latency = EEG_ling.event(end_index).latency;
+    % Selecting the signal around the first-stimuli-onset last-stimuli-offset
+    EEG_ling = pop_select(EEG_ling, 'point', [start_latency end_latency]);
     EEG_ling = eeg_checkset(EEG_ling, 'makeur');
 
-    lat1_nonling = EEG_nonling.event(2).latency; % 'New Segment' marker is at event(1) in the BVA format
-    lat2_nonling = EEG_ling.event(end).latency;
-    EEG_nonling = pop_select( EEG_nonling,'point',[(lat1_nonling - time_buffer*EEG_nonling.srate) (lat2_nonling + time_buffer*EEG_nonling.srate)]);
+    % % % Selecting the signal around the first-stimuli-onset last-stimuli-offset
+    % Find the indices of the start and end markers
+    start_index = find(strcmp({EEG_nonling.event.type}, start_marker), 1, 'first');
+    end_index = find(strcmp({EEG_nonling.event.type}, end_marker), 1, 'first');
+    % Ensure both markers are found
+    if isempty(start_index) || isempty(end_index)
+        error('Start or end marker not found in the dataset.');
+    end
+    % Get the latency of the start and end markers in data points
+    start_latency = EEG_nonling.event(start_index).latency;
+    end_latency = EEG_nonling.event(end_index).latency;
+    % Selecting the signal around the first-stimuli-onset last-stimuli-offset
+    EEG_nonling = pop_select(EEG_nonling, 'point', [start_latency end_latency]);
     EEG_nonling = eeg_checkset(EEG_nonling, 'makeur');
 
     % Merge datasets from ling and nonling recordings
@@ -141,15 +168,20 @@ for subj = 1:length(A)
     EEG = pop_eegfiltnew(EEG_clean, 'locutoff', 2);
 
     % % Resampling the EEG data to reduce storage and unnecessary
-    % high-frequency info (this step is commented on purpose, not performed)
-    % EEG = pop_resample(EEG, 250);
+    % high-frequency info
+    EEG = pop_resample(EEG, 250);
+    EEG = eeg_checkset(EEG);
 
     % Run ICA for artifact removal
-    EEG = pop_runica( EEG, 'icatype', 'runica' );
+    % EEG = pop_runica( EEG, 'icatype', 'runica' );
+    EEG = pop_runica(EEG, 'icatype', 'picard', 'maxiter',500,'mode','standard','chanind',{'EEG'});
+
+     % Perform automatic coordinate transformation
+    [~,coordinateTransformParameters] = coregister(EEG.chanlocs, templateChannelFilePath, 'warp', 'auto', 'manual', 'off');
 
     % Set Dipole Fitting parameters
     EEG = pop_dipfit_settings( EEG, 'hdmfile',hdmFilePath,'mrifile',MRIfile, ...
-        'chanfile',elec_names,'coordformat','MNI', ...
+        'chanfile',templateChannelFilePath,'coordformat','MNI', ...
         'coord_transform',coordinateTransformParameters ,'chansel',1:EEG.nbchan );
 
     % Run Dipole Fitting
@@ -157,12 +189,20 @@ for subj = 1:length(A)
 
     % Interpolate any removed channels
     EEG = pop_interp(EEG, chanlocs);
-    
+
     % Label the components
     EEG = iclabel(EEG, 'default');
 
     % Save processed EEG data
     pop_saveset(EEG,'filename',['EEG_revenant' name '.set'],'filepath',fullfile(data_dir,name));
+
+    % Flag anything detected as an artifact with 80-100% probability
+    EEG = pop_icflag(EEG, [NaN NaN;0.8 1;0.8 1;0.8 1;0.8 1;0.8 1;NaN NaN]);
+    
+    % remove components previously marked for rejection 
+    EEG = pop_subcomp( EEG, [], 0);
+
+    pop_saveset( EEG, 'filename',[name '_ICremov2.set'],'filepath',fullfile(data_dir,name));
 
 end % end subj loop
 
