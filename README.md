@@ -51,7 +51,7 @@ Output file is an excel table named "number_of_events_each recording_all_partici
 7.- revenantEEGprocessing() <br />
 
 This function merges raw EEG data from linguistic and nonlinguistic tasks into single files for each participant and further process the data, including
-performing ICA, automatic artifact rejection, and dipole fitting. <br /> 
+performing ICA, dipole fitting, and automatic artifact rejection. <br /> 
 
 Input files are two raw EEG recordings (".eeg" format) along with ".vhdr" and ".vmrk" files (e.g., "EEG_and_ECG_ling_0xx.edf_1.eeg" and "EEG_and_ECG_nonling_0xx.edf_1.eeg"; contained in the "EEG and ECG" folder.
 
