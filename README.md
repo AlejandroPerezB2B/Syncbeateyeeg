@@ -48,6 +48,15 @@ Input files are the ".vhdr" files corresponding to the raw EEG recordings.
 
 Output file is an excel table named "number_of_events_each recording_all_participants.xlsx" which contains the number of markers in each recording and the number of trials in each condition.
 
+7.- revenantEEGprocessing() <br />
+
+This function merges raw EEG data from linguistic and nonlinguistic tasks into single files for each participant and further process the data, including
+performing ICA, automatic artifact rejection, and dipole fitting. <br /> 
+
+Input files are two raw EEG recordings (".eeg" format) along with ".vhdr" and ".vmrk" files (e.g., "EEG_and_ECG_ling_0xx.edf_1.eeg" and "EEG_and_ECG_nonling_0xx.edf_1.eeg"; contained in the "EEG and ECG" folder.
+
+Output files are (1) "EEG_revenant0XX.set" and "EEG_revenant0XX.fdt" files (in EEGLAB format; contain the preprocessed EEG data); (2) "0XX_ICremov2.set" and "0XX_ICremov2.fdt" files (which contain new datasets after artifact removal) under the participant number folder. <br />
+
 
 **Trial and Duration**
 
