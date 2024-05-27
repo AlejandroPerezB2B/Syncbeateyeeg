@@ -215,7 +215,9 @@ save([data_dir filesep 'all_subj_NonLing_power.mat'],'all_subj_NonLing_delta','a
 % 'all_subj_Ling_delta','all_subj_Ling_theta','all_subj_Ling_alpha','all_subj_Ling_beta','all_subj_Ling_gamma'
 % 'all_subj_NonLing_delta','all_subj_NonLing_theta','all_subj_NonLing_alpha','all_subj_NonLing_beta','all_subj_NonLing_gamma'
 
-EEG_data = all_subj_Ling_alpha; % change this variable
+
+band = 'gamma'; % delta theta alpha beta % Change this variable
+eval(['EEG_data = all_subj_Ling_' band ';']);
 
 % Define significance level
 alpha = 0.05;
@@ -253,6 +255,8 @@ p_values_ttestFDR = mafdr(p_values_ttest, 'BHFDR', 1);
 significant_channels_ttest = find( p_values_ttestFDR < alpha & p_values_ttestFDR > 0);
 p_values_signrankFDR = mafdr(p_values_signrank, 'BHFDR', 1);
 significant_channels_signrank = find(p_values_signrankFDR < alpha & p_values_signrankFDR > 0);
+
+disp(['Results in ' band ' band:']);
 
 % Display significant channels for both tests
 if ~isempty(significant_channels_ttest)
