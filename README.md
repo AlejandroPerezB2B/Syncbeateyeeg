@@ -57,10 +57,16 @@ Input files are two raw EEG recordings (".eeg" format) along with ".vhdr" and ".
 
 Output files are (1) "EEG_revenant0XX.set" and "EEG_revenant0XX.fdt" files (in EEGLAB format; contain the preprocessed EEG data); (2) "0XX_ICremov2.set" and "0XX_ICremov2.fdt" files (which contain new datasets after artifact removal) under the participant number folder. <br />
 
+8.- epoching_and_time_frequency <br />
+
+This script processes EEG data to calculate spectral power for linguistic and non-linguistic conditions. It then performs normality tests, selects appropriate statistical tests (paired t-test or Wilcoxon signed-rank), applies FDR correction, and displays significant channels.
+Uses the function 'swtest' included in this repository.
+
 
 **Trial and Duration**
 
 For each condition in both the linguistic and nonlinguistic tasks, there were a total of 10 trials, including an initial practice trial (should be excluded from the analysis) and 9 study trials.
+The initial practice trial is deleted during the pre-processing implemented in revenantEEGprocessing()
 
 While all trials are around 30s, we used 28s as a standard duration for consistent analysis (because the shortest inguistic trial is ~28.5s). 
 
@@ -77,6 +83,8 @@ In the nonlinguistic task, the markers are:
   *Onset: Easy (S1); Hard (S3).
   
   *Offset: Easy (S2); Hard (S4).
+
+  Please note that the function 'revenantEEGprocessing' substitutes these markers for S21, S23, S22, and S24, respectively.
   
 Across tasks, common markers:
  
