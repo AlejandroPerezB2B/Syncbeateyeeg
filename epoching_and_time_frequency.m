@@ -9,9 +9,12 @@
 % Finally, it displays the significant channels for both tests.
 %
 % Author: Alejandro Perez, McMaster, 11/05/2024.
-% v2.0: Interpolation commented
+% v2.0 on 27/05/2024: Interpolation is commented out. The data is no longer 
+% split into two recordings because the issue of using the same marker for 
+% different conditions was corrected in a previous step. The practice trial
+% removal has also been addressed earlier.
 
-% Clear workspace and close all figures
+% Add eeglab to path and close all figures
 eeglab; close all;
 
 %% Epoching and calculating power spectrum across different frequency bands.
@@ -33,9 +36,8 @@ betaIdx  = find(freqs>13 & freqs<30);
 gammaIdx = find(freqs>30 & freqs<80);
 
 % List of specific folders to include for the processing
-% Leave empty if you want to process all except those in 'Ppt2exclude'
-% Overwrites 'Ppt2exclude'
-specificFolders = {}; % '021', '030', '040', '041', '034', '042', '050', '053', '060', '062', '070', '080', '089'
+% Leave empty if you want to process all except those in 'to_exclude'
+specificFolders = {}; % , '034', '050', '053', '060', '062', '070', '089'
 
 % Select the directory containing participant folders
 data_dir = uigetdir;
@@ -48,7 +50,7 @@ A = dir('0*');
 A = A([A.isdir]);
 
 % Participants to be excluded
-to_exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084'};
+to_exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084', '021', '041', '030', '040', '042', '080', '089'};
 % Extract the names of the folders
 folderNames = {A.name};
 % Find the indices of the folders to exclude within A
@@ -67,7 +69,7 @@ A = A(isSelected);
 end
 
 % Loop across participants
-for subj = 74:length(A)
+for subj = 1:length(A)
 
     % Change directory to the participant's folder
     cd([data_dir filesep A(subj).name ]);
@@ -118,17 +120,17 @@ for subj = 74:length(A)
         [spectra_Heb(:,:,i),~] = spectopo(EEG_Heb.data(:,:,i), 0, srate, 'plot','off');
     end
 
-    % Remove the first trial if there are 10 indicating the presence of the
-    % practice trial
-    if EEG_Eng.trials == 10
-        spectra_Eng(:,:,1) = [];
-    end
+    % % Remove the first trial if there are 10 indicating the presence of the
+    % % practice trial
+    % if EEG_Eng.trials == 10
+    %     spectra_Eng(:,:,1) = [];
+    % end
     % Calculate the average across trials
     spectra_Eng = mean(spectra_Eng, 3);
 
-    if EEG_Heb.trials == 10
-        spectra_Heb(:,:,1) = [];
-    end
+    % if EEG_Heb.trials == 10
+    %     spectra_Heb(:,:,1) = [];
+    % end
     spectra_Heb = mean(spectra_Heb, 3);
 
     % Compute absolute power Eng condition
@@ -176,9 +178,9 @@ for subj = 74:length(A)
     end
 
     % Remove the first trial and calculate the average across trials
-    spectra_Easy(:,:,1) = [];
+    % spectra_Easy(:,:,1) = [];
     spectra_Easy = mean(spectra_Easy, 3);
-    spectra_Hard(:,:,1) = [];
+    % spectra_Hard(:,:,1) = [];
     spectra_Hard = mean(spectra_Hard, 3);
 
     % Compute absolute power Easy condition
