@@ -27,6 +27,7 @@ function revenantEEGprocessing()
 % - "REST" v1.2
 % - "REST_cmd" v1.0
 % - "PICARD1.0"
+% - "Fileio" v20240111
 %
 % Author: Alejandro Perez, McMaster University, Hamilton, Canada
 % v1.0 21/05/2024
@@ -54,17 +55,34 @@ MRIfile = fullfile(path_dipfit,'standard_BEM','standard_mri.mat');
 start_marker = 'S111';
 end_marker = 'S112';
 
-% Define the participants to be EXCLUDED from the analyses.
-% Use the participant folder name
-Ppt2exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084'};
-% Reasons to exclude it:
-% The first 8 ppts were not born in or immigrated to Canada before age 3;
-% the last 2 ppts are monolinguals with over 30% exposure to another language
+% List of specific folders (participants) to include for the processing
+% Leave empty if you want to process all except those in 'to_exclude'
+specificFolders = {}; % '021', '030', '040', '041', '034', '042', '050', '053', '060', '062', '070', '080', '089'
 
 % Select participant's parent directory
 data_dir = uigetdir([],"Select the parent directory for participant data");
 cd(data_dir);
 A = dir('0*'); % Get participant folders
+% Filter to get only directories
+A = A([A.isdir]);
+% Participants to be excluded: first 8 not in Canada before age 3; last 2 are monolinguals with >30% exposure to another language
+to_exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084'};
+% Extract the names of the folders
+folderNames = {A.name};
+% Find the indices of the folders to exclude within A
+isExcluded = ismember(folderNames, to_exclude);
+% Exclude the specific folders
+A = A(~isExcluded);
+
+% Conditional in case you want to only process specific folders
+if ~isempty(specificFolders)
+    % Extract the names of the folders
+    folderNames = {A.name};
+    % Find the indices of the specific folders within A
+    isSelected = ismember(folderNames, specificFolders);
+    % Select the specific folders
+    A = A(isSelected);
+end
 
 % Loop across participants
 for subj = 1:length(A)
@@ -76,23 +94,15 @@ for subj = 1:length(A)
     cd(fullfile(data_dir, name));
     delete ([name '.fdt'],[name '.set'],['EEG_' name '.fdt'],['EEG_' name '.set']);
 
-    % Check if the participant is going to be excluded
-    isExcluded = any(strcmp(name, Ppt2exclude));
-
-    % Skip participant if excluded
-    if isExcluded
-        continue
-    end
-
     % Change directory to folder containig raw EEG
     eeg_path = fullfile(data_dir, name, 'EEG and ECG', filesep);
     cd(eeg_path);
 
     % List the .vhdr files corresponding to raw recordings (only two are expected)
-    vhdrfiles = dir('*.vhdr');
+    eegfiles = dir('*.eeg');
 
     % Extract the 'name' field from the structure array
-    nameArray = {vhdrfiles.name};
+    nameArray = {eegfiles.name};
 
     % Use the cellfun function to apply the contains function to each element of nameArray
     % Find the indices where the string is present
@@ -100,8 +110,64 @@ for subj = 1:length(A)
     containsString_nonling = cellfun(@(x) contains(x, '_nonling_'), nameArray);
 
     % Import EEG data using "bva-io" plugin
-    EEG_ling = pop_loadbv(eeg_path, vhdrfiles(containsString_ling).name);
-    EEG_nonling = pop_loadbv(eeg_path, vhdrfiles(containsString_nonling).name);
+    EEG_ling = pop_fileio([eeg_path eegfiles(containsString_ling).name], 'dataformat','brainvision_eeg');
+    EEG_nonling = pop_fileio([eeg_path eegfiles(containsString_nonling).name], 'dataformat','brainvision_eeg');
+
+    % Eliminate the first trial corresponding to each condition
+    % First trial is a practice trial
+
+    % Get the event types from the EEG_ling structure
+    eventTypes = {EEG_ling.event.type};
+    % Define the possible strings to search for
+    mks_eng = {'S  1', 'S  5', 'S  9'};
+    mks_heb = {'S  3', 'S  7', 'S 11'};
+    % Find the first occurrence of any of the possible strings
+    matches_eng = ismember(eventTypes, mks_eng);
+    matches_heb = ismember(eventTypes, mks_heb);
+    firstOccurrenceIndex_eng = find(matches_eng, 1);
+    firstOccurrenceIndex_heb = find(matches_heb, 1);
+    idx = [firstOccurrenceIndex_eng firstOccurrenceIndex_heb];
+    EEG_ling.event(idx) = [];
+    % Get the number of events
+    numEvents = numel(EEG_ling.event);
+    % Assign consecutive numbers to the urevent field
+    [EEG_ling.event.urevent] = deal(1:numEvents);
+    % Remake the EEG.urevent structure
+    EEG_ling = eeg_checkset(EEG_ling, 'makeur');
+
+    % Get the event types from the EEG_nonling structure
+    eventTypes = {EEG_nonling.event.type};
+    % Define the possible strings to search for
+    mks_easy = {'S  1'};
+    mks_hard = {'S  3'};
+    % Find the first occurrence of any of the possible strings
+    matches_easy = ismember(eventTypes, mks_easy);
+    matches_hard = ismember(eventTypes, mks_hard);
+    firstOccurrenceIndex_easy = find(matches_easy, 1);
+    firstOccurrenceIndex_hard = find(matches_hard, 1);
+    idx = [firstOccurrenceIndex_easy firstOccurrenceIndex_hard];
+    EEG_nonling.event(idx) = [];
+    % Get the number of events
+    numEvents = numel(EEG_nonling.event);
+    % Assign consecutive numbers to the urevent field
+    [EEG_nonling.event.urevent] = deal(1:numEvents);
+    % Remake the EEG.urevent structure
+    EEG_nonling = eeg_checkset(EEG_nonling, 'makeur');
+
+    % The following substitution ensures that markers have unique names
+    % across different conditions in two blocks of recordings, avoiding
+    % confusion and maintaining clarity in the data.
+    % Define the old and new strings
+    oldStrings = {'S  1', 'S  2', 'S  3', 'S  4'};
+    newStrings = {'S 21', 'S 22', 'S 23', 'S 24'};
+    % Get the event types from the EEG structure
+    eventTypes = {EEG_nonling.event.type};
+    % Find the indices of the old strings in the event types
+    [isOldString, loc] = ismember(eventTypes, oldStrings);
+    % Replace the old strings with the corresponding new strings
+    eventTypes(isOldString) = newStrings(loc(isOldString));
+    % Assign the modified event types back to EEG_nonling.event.type
+    [EEG_nonling.event.type] = deal(eventTypes{:});
 
     % Add channel info
     EEG_ling = pop_chanedit(EEG_ling,'lookup',templateChannelFilePath);
@@ -143,6 +209,7 @@ for subj = 1:length(A)
 
     % Merge datasets from ling and nonling recordings
     EEG = pop_mergeset(EEG_ling, EEG_nonling);
+    EEG = eeg_checkset(EEG, 'makeur');
 
     % Dataset containing EEG channels only
     EEG = pop_select( EEG,'channel',{'Fp1','Fz','F3','F7','FT9','FC5', ...
@@ -167,16 +234,15 @@ for subj = 1:length(A)
     % High-pass filter to remove slow drifts (e.g., above 1 Hz)
     EEG = pop_eegfiltnew(EEG_clean, 'locutoff', 2);
 
-    % % Resampling the EEG data to reduce storage and unnecessary
-    % high-frequency info
+    % Resampling the EEG data to reduce storage and unnecessary high-frequency info
     EEG = pop_resample(EEG, 250);
     EEG = eeg_checkset(EEG);
 
-    % Run ICA for artifact removal
+    % Run ICA for artifact removal (picard algorithm is faster)
     % EEG = pop_runica( EEG, 'icatype', 'runica' );
     EEG = pop_runica(EEG, 'icatype', 'picard', 'maxiter',500,'mode','standard','chanind',{'EEG'});
 
-     % Perform automatic coordinate transformation
+    % Perform automatic coordinate transformation
     [~,coordinateTransformParameters] = coregister(EEG.chanlocs, templateChannelFilePath, 'warp', 'auto', 'manual', 'off');
 
     % Set Dipole Fitting parameters
@@ -198,8 +264,8 @@ for subj = 1:length(A)
 
     % Flag anything detected as an artifact with 80-100% probability
     EEG = pop_icflag(EEG, [NaN NaN;0.8 1;0.8 1;0.8 1;0.8 1;0.8 1;NaN NaN]);
-    
-    % remove components previously marked for rejection 
+
+    % remove components previously marked for rejection
     EEG = pop_subcomp( EEG, [], 0);
 
     pop_saveset( EEG, 'filename',[name '_ICremov2.set'],'filepath',fullfile(data_dir,name));
