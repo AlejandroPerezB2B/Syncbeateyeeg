@@ -9,21 +9,19 @@
 % Finally, it displays the significant channels for both tests.
 %
 % Author: Alejandro Perez, McMaster, 11/05/2024.
+% v2.0: Interpolation commented
 
 % Clear workspace and close all figures
-eeglab; clear; close all;
+eeglab; close all;
 
 %% Epoching and calculating power spectrum across different frequency bands.
 % Define parameters
 srate = 250; % Sampling rate
-ntrials = 10; % Number of trials Linguistic condition
-ntrialsN = 4; % Number of trials NonLinguistic condition
+ntrials = 9; % Number of trials Linguistic condition
+ntrialsN = 9; % Number of trials NonLinguistic condition
 bands = {'delta','theta','alpha','beta','gamma'};
 condLing = {'Eng', 'Heb'};
 condNonLing = {'Easy', 'Hard'};
-
-% Participants to be excluded
-to_exclude = {'016','071','022'};
 
 % Define frequency bands
 freqs = [0:125]; % frequencies estimated in the spectopo function
@@ -34,57 +32,82 @@ alphaIdx = find(freqs>8 & freqs<13);
 betaIdx  = find(freqs>13 & freqs<30);
 gammaIdx = find(freqs>30 & freqs<80);
 
+% List of specific folders to include for the processing
+% Leave empty if you want to process all except those in 'Ppt2exclude'
+% Overwrites 'Ppt2exclude'
+specificFolders = {}; % '021', '030', '040', '041', '034', '042', '050', '053', '060', '062', '070', '080', '089'
+
 % Select the directory containing participant folders
 data_dir = uigetdir;
 cd(data_dir);
-% load the channel list to be used on interpolation step
-load 'full_list_ch.mat'; % loaded var name is 'to_interpolate'
+% % load the channel list to be used on interpolation step
+% load 'full_list_ch.mat'; % loaded var name is 'to_interpolate'
 % Get all participant folders
 A = dir('0*');
+% Filter to get only directories
+A = A([A.isdir]);
+
+% Participants to be excluded
+to_exclude = {'010', '012', '015', '016', '019', '022', '058', '066', '075', '084'};
+% Extract the names of the folders
+folderNames = {A.name};
+% Find the indices of the folders to exclude within A
+isExcluded = ismember(folderNames, to_exclude);
+% Exclude the specific folders
+A = A(~isExcluded);
+
+% Conditional in case you want to only process specific folders
+if ~isempty(specificFolders)
+% Extract the names of the folders
+folderNames = {A.name};    
+% Find the indices of the specific folders within A
+isSelected = ismember(folderNames, specificFolders);
+% Select the specific folders
+A = A(isSelected);
+end
 
 % Loop across participants
-for suj = 1:length(A)
-
-    % Check if the participant belongs to the list of excluded
-    if ismember(A(suj).name, to_exclude)
-        continue
-    end
+for subj = 74:length(A)
 
     % Change directory to the participant's folder
-    cd([data_dir filesep A(suj).name ]);
+    cd([data_dir filesep A(subj).name ]);
     current_dir = pwd;
     % Load the preprocessed EEG dataset
-    EEG_ori = pop_loadset('filename', [A(suj).name '_ICremov.set']);
-    % Interpolate missing channels
-    EEG_ori = pop_interp(EEG_ori, to_interpolate);
+    EEG_ori = pop_loadset('filename', [A(subj).name '_ICremov2.set']);
 
-    % Detect the markers indicating the start (S111) and end (S112) of the experiment
-    % There should be only two of each type
-    markers = {EEG_ori.event.type};
-    start_markers = find(strcmp(markers, 'S111'));
-    end_markers = find(strcmp(markers, 'S112'));
-
-    % Ensure that there are exactly two start and end markers
-    if numel(start_markers) ~= 2 || numel(end_markers) ~= 2
-        error('There should be exactly two start (S111) and two end (S112) markers.');
-    end
-
-    % Selects the data corresponding to the two separated recordings based on the marker latencies
-    EEG_Ling = pop_select(EEG_ori, 'point', [EEG_ori.event(start_markers(1)).latency EEG_ori.event(end_markers(1)).latency]);
-    EEG_NonLing = pop_select(EEG_ori, 'point', [EEG_ori.event(start_markers(2)).latency EEG_ori.event(end_markers(2)).latency]);
+    % % Detect the markers indicating the start (S111) and end (S112) of the experiment
+    % % There should be only two of each type
+    % markers = {EEG_ori.event.type};
+    % start_markers = find(strcmp(markers, 'S111'));
+    % end_markers = find(strcmp(markers, 'S112'));
+    % 
+    % % Ensure that there are exactly two start and end markers
+    % if numel(start_markers) ~= 2 || numel(end_markers) ~= 2
+    %     error('There should be exactly two start (S111) and two end (S112) markers.');
+    % end
+    % 
+    % % Preallocate arrays for latencies
+    % start_latencies = [EEG_ori.event(start_markers).latency];
+    % end_latencies = [EEG_ori.event(end_markers).latency];
+    % 
+    % % Selects the data corresponding to the two separated recordings based on the marker latencies
+    % EEG_Ling = pop_select(EEG_ori, 'point', [start_latencies(1) end_latencies(1)]);
+    % EEG_Ling = eeg_checkset(EEG_Ling, 'makeur');
+    % EEG_NonLing = pop_select(EEG_ori, 'point', [start_latencies(2) end_latencies(2)]);
+    % EEG_NonLing = eeg_checkset(EEG_NonLing, 'makeur');
 
     %%%%%%%%%%% Linguistic condition %%%%%%%%%%%%%
     %%%% Epochs English condition %%%%
-    EEG_Eng = pop_epoch( EEG_Ling, {  'S  1'  'S  5'  'S  9'  }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes'); % although we epoched using 28 sec there is a variable lenght in the epochs
+    EEG_Eng = pop_epoch( EEG_ori, {  'S  1'  'S  5'  'S  9'  }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes'); % although we epoched using 28 sec there is a variable lenght in the epochs
     % Warning if there are no 10 trials as expected
     if EEG_Eng.trials ~= ntrials
-        warndlg(['Participant ' A(suj).name ' has ' num2str(EEG_Eng.trials) ' trials in the English condition']);
+        warndlg(['Participant ' A(subj).name ' has ' num2str(EEG_Eng.trials) ' trials in the English condition']);
     end
     %%%% Epochs Hebrew condition %%%%
-    EEG_Heb = pop_epoch( EEG_Ling, {  'S  3'  'S  7'  'S 11'  }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes');
+    EEG_Heb = pop_epoch( EEG_ori, {  'S  3'  'S  7'  'S 11'  }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes');
     % Warning if there are no 10 trials as expected
     if EEG_Heb.trials ~= ntrials
-        warndlg(['Participant ' A(suj).name ' has ' num2str(EEG_Heb.trials) ' trials in the Hebrew condition']);
+        warndlg(['Participant ' A(subj).name ' has ' num2str(EEG_Heb.trials) ' trials in the Hebrew condition']);
     end
     % Loop across trials to calculate spectral power
     % two separated loops in case they have different number of trials
@@ -126,24 +149,24 @@ for suj = 1:length(A)
     % (cond x channel x subject)
     for c = 1:length(condLing)
         for b = 1:length(bands)
-            eval(['all_subj_Ling_' bands{b} '(c,:,suj) = ' bands{b} 'Power_' condLing{c} ';']);
+            eval(['all_subj_Ling_' bands{b} '(c,:,subj) = ' bands{b} 'Power_' condLing{c} ';']);
         end
     end
     clear spectra_Heb spectra_Eng;
 
     %%%%%%%%%%% NonLinguistic condition %%%%%%%%%%%%%
     %%%% Epochs Easy condition %%%%
-    EEG_Easy = pop_epoch( EEG_NonLing, {  'S  1' }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes'); % although we epoched using 28 sec there is a variable lenght in the epochs
+    EEG_Easy = pop_epoch( EEG_ori, {  'S 21' }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes'); % although we epoched using 28 sec there is a variable lenght in the epochs
     % Warning if there are no 10 trials as expected
     if EEG_Easy.trials ~= ntrialsN
-        warndlg(['Participant ' A(suj).name ' has ' num2str(EEG_Easy.trials) ' trials in the Easy condition']);
+        warndlg(['Participant ' A(subj).name ' has ' num2str(EEG_Easy.trials) ' trials in the Easy condition']);
         continue
     end
     %%%% Epochs Hard condition %%%%
-    EEG_Hard = pop_epoch( EEG_NonLing, {  'S  3'  }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes');
+    EEG_Hard = pop_epoch( EEG_ori, {  'S 23'  }, [0  28], 'newname', 'epoched_data', 'epochinfo', 'yes');
     % Warning if there are no 10 trials as expected
     if EEG_Hard.trials ~= ntrialsN
-        warndlg(['Participant ' A(suj).name ' has ' num2str(EEG_Hard.trials) ' trials in the Hard condition']);
+        warndlg(['Participant ' A(subj).name ' has ' num2str(EEG_Hard.trials) ' trials in the Hard condition']);
         continue
     end
     % Loop across trials to calculate spectral power
@@ -175,7 +198,7 @@ for suj = 1:length(A)
     % (cond x channel x subject)
     for c = 1:length(condNonLing)
         for b = 1:length(bands)
-            eval(['all_subj_NonLing_' bands{b} '(c,:,suj) = ' bands{b} 'Power_' condNonLing{c} ';']);
+            eval(['all_subj_NonLing_' bands{b} '(c,:,subj) = ' bands{b} 'Power_' condNonLing{c} ';']);
         end
     end
 
