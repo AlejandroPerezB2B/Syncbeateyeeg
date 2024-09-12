@@ -62,6 +62,9 @@ Output files are (1) "EEG_revenant0XX.set" and "EEG_revenant0XX.fdt" files (in E
 This script processes EEG data to calculate spectral power for linguistic and non-linguistic conditions. It then performs normality tests, selects appropriate statistical tests (paired t-test or Wilcoxon signed-rank), applies FDR correction, and displays significant channels.
 Uses the function 'swtest' included in this repository.
 
+9.- epoching_and_ERSP <br />
+
+This script calculates the spectral power while preserving the time dimension. It then performs the statistical tests using the functions in the "resampling statistical toolbox" (a .zip file is included in the repository). The outcomes from this function are the files 'ERSP_Eng_allsubj' 'ERSP_Heb_allsubj' 'ERSP_Easy_allsub'j 'ERSP_Hard_allsubj'. 
 
 **Trial and Duration**
 
