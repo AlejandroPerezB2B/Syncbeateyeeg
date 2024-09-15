@@ -1,18 +1,12 @@
 % First section of this script organizes and processes EEG data to calculate
 % the ERSP on linguistic and non-linguistic conditions across
-% multiple participants and frequency bands.
+% multiple participants and frequencies.
 %
-% Second section performs a Shapiro-Wilk normality test for each channel's data
-% and selects either a paired t-test or Wilcoxon signed-rank test based on
-% the normality assumption. Then, it applies false discovery rate (FDR)
+% Second section performs a paired t-test and applies false discovery rate (FDR)
 % correction for multiple comparisons to identify significant channels.
 % Finally, it displays the significant channels for both tests.
 %
-% Author: Alejandro Perez, McMaster, 11/05/2024.
-% v2.0 on 27/05/2024: Interpolation is commented out. The data is no longer 
-% split into two recordings because the issue of using the same marker for 
-% different conditions was corrected in a previous step. The practice trial
-% removal has also been addressed earlier.
+% Author: Alejandro Perez, McMaster, 15/09/2024.
 
 % Add eeglab to path and close all figures
 eeglab; close all;
@@ -228,87 +222,99 @@ for subj = 1:length(ERSP_Heb_allsubj)
     end
 end
 
-data = {Eng,Heb};
 
+
+% There are problems with the data. Specifically, the values for
+% participants on the places 20, 33, 36, 44.
+% The following code was used to determine the places of these participants
+% in the Eng matrix
+
+% % Finding the problems in the data
+% nan_indices = find(isnan(Eng));
+% 
+% % Convert the linear indices to subscripts for the 4D matrix
+% [t, f, c, p] = ind2sub(size(Eng), nan_indices);
+% 
+% unique(p)
+
+% We are simply going to remove these participants since figuring out why
+% they are empty is going to be too laborious
+
+Eng(:,:,:,[20 33 36 44]) = [];
+Heb(:,:,:,[20 33 36 44]) = [];
+
+% Collapsing cross channels
+% data = {Eng,Heb};
+data = {squeeze(mean(Eng,3)),squeeze(mean(Heb,3))};
 % Statistics
-[t df pvals] = statcond(data); 
-% [stats, df, pvals, surrog] = statcond( data, 'key','val'... );
+[t df pvals] = statcond(data, 'mode', 'perm', 'naccu', 2000); 
 
-% fdr correction
+% Flatten the 3D matrix into a 1D array
+p_values_flattened = pvals(:);
 
-% creating figures
+% Perform FDR correction
+[fdr_corrected_p_values] = mafdr(p_values_flattened, 'BHFDR', true);
 
+% Reshape the corrected p-values back into 3D format
+fdr_corrected_p_values_Xd = reshape(fdr_corrected_p_values, size(pvals));
 
-% Finding the 
-nan_indices = find(isnan(Eng));
-
-% Convert the linear indices to subscripts for the 4D matrix
-[t, f, c, p] = ind2sub(size(Eng), nan_indices);
-
+fdr_pvals = find(fdr_corrected_p_values_Xd<0.05)
 
 
-band = 'gamma'; % delta theta alpha beta % Change this variable
-eval(['EEG_data = all_subj_Ling_' band ';']);
 
-% Define significance level
-alpha = 0.05;
-% Number of channels
-nchan = 31;
+% Create the image plot
+figure;
+imagesc(times/1000, frequencies, mean(squeeze(mean(Eng,3)),3)');
+% Reverse the y-axis
+set(gca, 'YDir', 'normal'); 
+% Set axis labels
+xlabel('Time (sec)');    % Label x-axis as time (in milliseconds)
+ylabel('Frequency (Hz)'); % Label y-axis as frequency (in Hz)
+% Set colorbar for intensity reference
+colorbar;
+title('Time-Frequency Representation of the English Condition');
+clim([-1 0.1]);
+% Add colorbar with a custom label
+c = colorbar;
+c.Label.String = 'ERSP (dB)';
+c.Label.FontSize = 12;  % Adjust the font size if needed
 
-% Initialize matrices to store p-values and significant channels
-p_values_ttest = zeros(nchan, 1);
-significant_channels_ttest = [];
-p_values_signrank = zeros(nchan, 1);
-significant_channels_signrank = [];
+% Create the image plot
+figure;
+imagesc(times/1000, frequencies, mean(squeeze(mean(Heb,3)),3)');
+% Reverse the y-axis
+set(gca, 'YDir', 'normal'); 
+% Set axis labels
+xlabel('Time (sec)');    % Label x-axis as time (in milliseconds)
+ylabel('Frequency (Hz)'); % Label y-axis as frequency (in Hz)
+% Set colorbar for intensity reference
+colorbar;
+title('Time-Frequency Representation of the Hebrew Condition');
+clim([-1 0.1]);
+% Add colorbar with a custom label
+c = colorbar;
+c.Label.String = 'ERSP (dB)';
+c.Label.FontSize = 12;  % Adjust the font size if needed
 
-% Loop through channels
-for ch = 1:nchan
-    % Extract data for the current channel
-    data_condition1 = squeeze(EEG_data(1, ch, :));
-    data_condition2 = squeeze(EEG_data(2, ch, :));
+% Create the image plot
+figure;
+imagesc(times/1000, frequencies, mean(squeeze(mean(Eng,3)),3)' - mean(squeeze(mean(Heb,3)),3)');
+% Reverse the y-axis
+set(gca, 'YDir', 'normal'); 
+% Set axis labels
+xlabel('Time (sec)');    % Label x-axis as time (in milliseconds)
+ylabel('Frequency (Hz)'); % Label y-axis as frequency (in Hz)
+% Set colorbar for intensity reference
+colorbar;
+title('Time-Frequency Representation English minus Hebrew Condition');
+clim([-.06 .06]);
+% Add colorbar with a custom label
+c = colorbar;
+c.Label.String = 'Difference';
+c.Label.FontSize = 12;  % Adjust the font size if needed
 
-    % Shapiro-Wilk normality test
-    [~, p_shapiro_condition1] = swtest(data_condition1);
-    [~, p_shapiro_condition2] = swtest(data_condition2);
-
-    % Perform t-test if data is normally distributed, otherwise perform Wilcoxon signed-rank test
-    if p_shapiro_condition1 > alpha && p_shapiro_condition2 > alpha
-        [h, p, ~, stats] = ttest(data_condition1, data_condition2);
-        p_values_ttest(ch) = p;
-    else
-        [p, ~, stats] = signrank(data_condition1, data_condition2);
-        p_values_signrank(ch) = p;
-    end
-end
-
-% FDR correction for multiple comparisons
-p_values_ttestFDR = mafdr(p_values_ttest, 'BHFDR', 1);
-significant_channels_ttest = find( p_values_ttestFDR < alpha & p_values_ttestFDR > 0);
-p_values_signrankFDR = mafdr(p_values_signrank, 'BHFDR', 1);
-significant_channels_signrank = find(p_values_signrankFDR < alpha & p_values_signrankFDR > 0);
-
-disp(['Results in ' band ' band:']);
-
-% Display significant channels for both tests
-if ~isempty(significant_channels_ttest)
-    disp("Significant channels (t-test):");
-    disp(significant_channels_ttest);
-else
-    disp("There are no differences in the ttest")
-end
-
-if ~isempty(significant_channels_signrank)
-    disp("Significant channels (Wilcoxon signed-rank test):");
-    disp(significant_channels_signrank);
-else
-    disp("There are no differences signed-rank test")
-end
-
-% bonus code used to close all msgbox instances 
-% that refused to close otherwise  
-% hv_figure_all = findall(0, 'Type', 'Figure');
-% delete( hv_figure_all( arrayfun(@(h) contains(h.Tag, 'Msgbox'), hv_figure_all) ) )
-
+% Adjust axis scaling (optional)
+axis xy;  % Make sure y-axis is correct (frequencies displayed top to bottom)
 
 Steps:
 Load the Data: Load the dataset, which contains 57 rows (participants) and four columns (Condition, pupil size, BPM, and Alpha power).
