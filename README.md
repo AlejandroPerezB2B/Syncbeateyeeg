@@ -64,7 +64,7 @@ Uses the function 'swtest' included in this repository.
 
 9.- epoching_and_ERSP <br />
 
-This script calculates the spectral power while preserving the time dimension. It then performs the statistical tests using the functions in the "resampling statistical toolbox" (a .zip file is included in the repository). The outcomes from this function are the files 'ERSP_Eng_allsubj' 'ERSP_Heb_allsubj' 'ERSP_Easy_allsub'j 'ERSP_Hard_allsubj'. 
+This script calculates the spectral power while preserving the time dimension. It then performs the statistical tests using the functions in the "resampling statistical toolbox" (a .zip file is included in the repository). The outcomes from this function are the files "all_subj_Ling_ERSP.mat" and "all_subj_NonLing_ERSP.mat" (which are too large to be uploaded here, but can be found on OneDrive). 
 
 **Trial and Duration**
 
